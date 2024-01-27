@@ -1,164 +1,120 @@
 <?php
+    require '../koneksi/koneksi.php';
+    $title_web = 'Dashboard';
+    include 'header.php';
+    if(empty($_SESSION['USER']))
+    {
+        session_start();
+    }
+    if(!empty($_POST['nama_rental']))
+    {
+        $data[] =  htmlspecialchars($_POST["nama_rental"]);
+        $data[] =  htmlspecialchars($_POST["telp"]);
+        $data[] =  htmlspecialchars($_POST["alamat"]);
+        $data[] =  htmlspecialchars($_POST["email"]);
+        $data[] =  htmlspecialchars($_POST["no_rek"]);
+        $data[] =  1;
+        $sql = "UPDATE infoweb SET nama_rental = ?, telp = ?, alamat = ?, email = ?, no_rek = ?  WHERE id = ? ";
+        $row = $koneksi->prepare($sql);
+        $row->execute($data);
+        echo '<script>alert("Update Data Info Website Berhasil !");window.location="index.php"</script>';
+        exit;
+    }
 
-require 'koneksi/koneksi.php';
-if(empty($_SESSION['USER']))
-{
-    session_start();
-}
-include 'header.php';
-
+    if(!empty($_POST['nama_pengguna']))
+    {
+        $data[] =  htmlspecialchars($_POST["nama_pengguna"]);
+        $data[] =  htmlspecialchars($_POST["username"]);
+        $data[] =  md5($_POST["password"]);
+        $data[] =  $_SESSION['USER']['id_login'];
+        $sql = "UPDATE login SET nama_pengguna = ?, username = ?, password = ? WHERE id_login = ? ";
+        $row = $koneksi->prepare($sql);
+        $row->execute($data);
+        echo '<script>alert("Update Data Profil Berhasil !");window.location="index.php"</script>';
+        exit;
+    }
 ?>
-
-        <?php 
-            $no =1;
-            foreach($querymobil as $isi)
-            {
-        ?>
-        <div class="carousel-item <?php if($no == '1'){ echo 'active';}?>">
-            <img src="assets/image/<?= $isi['gambar'];?>" alt="First slide" 
-            class="img-fluid" style="object-fit:cover;width:100%;height:500px;">
-        </div>
-        <?php $no++;}?>
-    </div>
-    <a class="carousel-control-prev" href="#carouselId" role="button" data-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselId" role="button" data-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-    </a>
-</div>
-<div class="container-fluid mt-5">
+<div class="container mt-4">
     <div class="row">
-        <div class="col-sm-3">
-            <div class="card" style=" background: blue">
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-header">
+                    Info Website
+                </div>
                 <div class="card-body">
-                    <?php if($_SESSION['USER']){?>
-                        Selamat Datang , <?php echo $_SESSION['USER']['nama_pengguna'];?>
-                        <br/>
-                        <br/>
-                        <center>
-                            <?php if($_SESSION['USER']['level'] == 'admin'){?>
-                                <a href="admin/index.php" class="btn btn-primary mb-2 btn-block">Dashboard</a>
-                            <?php }else{?>
-                                <a href="blog.php" class="btn btn-primary mb-2 btn-block">Booking Sekarang !</a>
-                            <?php }?>
-                            <!-- Button trigger modal -->
-                            <a href="admin/logout.php" class="btn btn-danger text-white btn-block">
-                                Logout
-                            </a>
-                        </center>
-                    <?php }else{?>
-                    <form method="post" action="koneksi/proses.php?id=login">
-                        <center><h5 class="card-title">Login</h5></center>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                    <form action="" method="post">
+                        <?php
+                            $sql = "SELECT * FROM infoweb WHERE id = 1";
+                            $row = $koneksi->prepare($sql);
+                            $row->execute();
+                            $edit = $row->fetch(PDO::FETCH_OBJ);
+                        ?>
                         <div class="form-group">
-                        <label for="">Username</label>
-                        <input type="text" name="user" id="" class="form-control" placeholder="" aria-describedby="helpId">
+                            <label for="">Nama rental</label>
+                            <input type="text" class="form-control" value="<?= $edit->nama_rental;?>" name="nama_rental" id="nama_rental" placeholder=""/>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="">Email</label>
+                                    <input type="text" class="form-control" value="<?= $edit->email;?>" name="email" id="email" placeholder=""/>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="">Telp</label>
+                                    <input type="text" class="form-control" value="<?= $edit->telp;?>" name="telp" id="telp" placeholder=""/>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
-                        <label for="">Password</label>
-                        <input type="password" name="pass" id="" class="form-control" placeholder="" aria-describedby="helpId">
+                            <label for="">Alamat</label>
+                            <textarea class="form-control" name="alamat" id="alamat" placeholder=""><?= $edit->alamat;?></textarea>
                         </div>
-                        <center><button class="btn btn-primary">Login</button>
-                        
-                        <!-- Button trigger modal -->
-                        <a class="btn btn-danger text-white" data-toggle="modal" data-target="#modelId">
-                            Daftar
-                         </a></center>
+                        <div class="form-group">
+                            <label for="">No rek</label>
+                            <textarea class="form-control" name="no_rek" id="no_rek" placeholder=""><?= $edit->no_rek;?></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            Simpan
+                        </button>
                     </form>
-                    <?php }?>
                 </div>
             </div>
         </div>
-        <div class="col-sm-9">
-            <div class="row">
-                <?php 
-                    $query =  $koneksi -> query('SELECT * FROM mobil ORDER BY id_mobil DESC')->fetchAll();
-                    $no =1;
-                    foreach($query as $isi)
-                    {
-                ?>
-                <br/>
-                <br/>
-                <div class="col-sm-4">
-                    <div class="card">
-                    <img src="assets/image/<?php echo $isi['gambar'];?>" class="card-img-top" style="height:200px;">
-                        <div class="card-body" style="background:#ddd">
-                        <h5 class="card-title"><?php echo $isi['merk'];?></h5>
-                        </div>
-                        <ul class="list-group list-group-flush">
-
-                        <?php if($isi['status'] == 'Tersedia'){?>
-
-                            <li class="list-group-item bg-primary text-white">
-                                <i class="fa fa-check"></i> Available
-                            </li>
-
-                        <?php }else{?>
-
-                            <li class="list-group-item bg-danger text-white">
-                                <i class="fa fa-close"></i> Not Available
-                            </li>
-
-                        <?php }?>
-                    
-                    
-                        <li class="list-group-item bg-info text-white"><i class="fa fa-check"></i> Free E-toll 50k</li>
-                        <li class="list-group-item bg-dark text-white">
-                            <i class="fa fa-money"></i> Rp. <?php echo number_format($isi['harga']);?>/ day
-                        </li>
-                        </ul>
-                        <div class="card-body">
-                        <center><a href="booking.php?id=<?php echo $isi['id_mobil'];?>" class="btn btn-success">Booking now!</a>
-                        <a href="detail.php?id=<?php echo $isi['id_mobil'];?>" class="btn btn-info">Detail</a></center>
-                        </div>
-                    </div>
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-header">
+                    Profil Admin
                 </div>
-                <?php $no++;}?>
+                <div class="card-body">
+                    <form action="" method="post">
+                    <?php
+                        $id =  $_SESSION["USER"]["id_login"];
+                        $sql = "SELECT * FROM login WHERE id_login = ?";
+                        $row = $koneksi->prepare($sql);
+                        $row->execute(array($id));
+                        $edit_profil = $row->fetch(PDO::FETCH_OBJ);
+                    ?>
+                        <div class="form-group">
+                            <label for="">Nama Pengguna</label>
+                            <input type="text" class="form-control" value="<?= $edit_profil->nama_pengguna;?>" name="nama_pengguna" id="nama_pengguna" placeholder=""/>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Username</label>
+                            <input type="text" required class="form-control" value="<?= $edit_profil->username;?>" name="username" id="username" placeholder=""/>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Password</label>
+                            <input type="password" required class="form-control" value="" name="password" id="password" placeholder=""/>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            Simpan
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-
-    </div>
 </div>
-
-<!-- Modal -->
-<div class="modal fade" id="modelId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Daftar Pengguna</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-            </div>
-            <div class="modal-body">
-                <form method="post" action="koneksi/proses.php?id=daftar">
-                    <div class="form-group">
-                    <label for="">Nama Pengguna</label>
-                    <input type="text" name="nama" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                    <label for="">Username</label>
-                    <input type="text" name="user" id="" class="form-control"  required placeholder="" aria-describedby="helpId">
-                    </div>
-                    <div class="form-group">
-                    <label for="">Password</label>
-                    <input type="password" name="pass" id="" class="form-control" required placeholder="" aria-describedby="helpId">
-                    </div>
-            </div>
-            <div class="modal-footer">
-                <a class="btn btn-secondary text-white" data-dismiss="modal">Close</a>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
-<?php
-include 'footer.php';
-?>
+<?php include 'footer.php';?>
